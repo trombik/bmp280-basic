@@ -98,7 +98,7 @@ I (10325) wifi_connect_esp8266: Retrying to connect to the AP
 ```
 ## License
 
-MIT license unless other license is used in files.
+ISC license unless other license is used in files.
 
 ```c
 /*
