@@ -26,9 +26,10 @@
 #include <nvs_flash.h>
 #include <esp_err.h>
 #include <esp_log.h>
-#include <time.h>
 
 #if defined(CONFIG_PROJECT_SNTP_ENABLE)
+#include <time.h>
+
 #include "sntp_connect.h"
 #endif
 
