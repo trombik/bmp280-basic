@@ -1,6 +1,6 @@
 # `bmp280-basic`
 
-An example project for ESP8266 and `BME280`.
+An example project for ESP8266 and `BMP280` and `BME280`.
 
 ESP8266 communicate with the sensor over I2C.
 
@@ -13,6 +13,11 @@ The ESP8266 does:
 - Deep sleep
 
 See `Project configuration` in `make menuconfig` for options.
+
+## Requirements
+
+The example uses float in `printf(3)`. `CONFIG_NEWLIB_LIBRARY_LEVEL_NORMAL`
+must be set to `y` in `sdkconfig`.
 
 ## Pins
 
