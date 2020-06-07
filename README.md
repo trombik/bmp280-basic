@@ -16,10 +16,12 @@ See `Project configuration` in `make menuconfig` for options.
 
 ## Pins
 
-| ESP8266 | BME280 |
-|---------|--------|
-| GPIO 4  | SDA    |
-| GPIO 5  | SCL    |
+| ESP8266   | BME280 |
+|-----------|--------|
+| `GPIO` 4  | SDA    |
+| `GPIO` 5  | SCL    |
+
+Also, connect `GPIO` 16 to `RST` to make `esp_deep_sleep()` to work.
 
 ## Example log
 
