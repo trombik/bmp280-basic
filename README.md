@@ -14,6 +14,12 @@ The ESP8266 does:
 
 See `Project configuration` in `make menuconfig` for options.
 
+## Rationales
+
+I want a simple example to make a sensor device. Read values from a sensor,
+do something, and sleep. Some devices need WiFi access to send the values to
+somewhere. Some devices need synchronized time for display, such as LCD.
+
 ## Requirements
 
 The example uses float in `printf(3)`. `CONFIG_NEWLIB_LIBRARY_LEVEL_NORMAL`
