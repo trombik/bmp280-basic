@@ -147,11 +147,11 @@ void app_main()
     bmp280_test(NULL);
     uptime_in_msec = esp_timer_get_time() / 1000ULL;
     printf("Uptime %lld sec\n", uptime_in_msec / 1000);
-    printf("Sleeping %d sec\n", sleep_sec);
+    printf("Sleeping %d sec\n", CONFIG_PROJECT_DEEP_SLEEP_TIME_SEC);
 
 fail:
     /* wait a bit for the message above to be printed */
     vTaskDelay(100 / portTICK_PERIOD_MS);
 
-    esp_deep_sleep(sec_to_usec(CONFIG_DEEP_SLEEP_TIME_SEC));
+    esp_deep_sleep(sec_to_usec(CONFIG_PROJECT_DEEP_SLEEP_TIME_SEC));
 }

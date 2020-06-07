@@ -14,7 +14,7 @@ config PROJECT_SNTP_HOST
     help
         SNTP server to sync time with.
 
-config DEEP_SLEEP_TIME_SEC
+config PROJECT_DEEP_SLEEP_TIME_SEC
     int "Second to sleep"
     default 30
 
