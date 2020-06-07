@@ -1,0 +1,7 @@
+menu "Project configuration"
+
+config DEEP_SLEEP_TIME_SEC
+    int "Second to sleep"
+    default 30
+
+endmenu
