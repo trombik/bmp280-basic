@@ -10,7 +10,9 @@
 #include <nvs_flash.h>
 #include <esp_err.h>
 #include <esp_log.h>
+#include <time.h>
 
+#include "sntp_connect.h"
 #include "wifi_connect.h"
 
 #if defined(CONFIG_IDF_TARGET_ESP8266)
@@ -72,6 +74,9 @@ void app_main()
 {
     int sleep_sec = 30;
     int64_t uptime_in_msec;
+    time_t now;
+    struct tm timeinfo;
+    char time_string[64];
     esp_err_t err;
 
     ESP_LOGI(TAG, "Initializing NVS");
@@ -106,12 +111,29 @@ void app_main()
         }
     }
 
+    ESP_LOGI(TAG, "Configuring time");
+    if (time(&now) == -1) {
+        ESP_LOGI(TAG, "time()");
+    }
+    localtime_r(&now, &timeinfo);
+    strftime(time_string, sizeof(time_string), "%FT%TZ", &timeinfo);
+    ESP_LOGI(TAG, "Current time: %s", time_string);
+    if (timeinfo.tm_year < (2016 - 1900)) {
+        ESP_LOGI(TAG, "Time is not set yet. Setting time over NTP");
+        if ((err = init_sntp()) != ESP_OK) {
+            ESP_LOGE(TAG, "init_sntp(): %x", err);
+            goto fail;
+        }
+    }
+    ESP_LOGI(TAG, "Configured time");
+
     ESP_ERROR_CHECK(i2cdev_init());
     bmp280_test(NULL);
     uptime_in_msec = esp_timer_get_time() / 1000ULL;
     printf("Uptime %lld sec\n", uptime_in_msec / 1000);
     printf("Sleeping %d sec\n", sleep_sec);
 
+fail:
     /* wait a bit for the message above to be printed */
     vTaskDelay(100 / portTICK_PERIOD_MS);
 

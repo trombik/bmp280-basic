@@ -8,6 +8,12 @@ config PROJECT_WIFI_PASSWORD
     string "Password"
     default ""
 
+config PROJECT_SNTP_HOST
+    string "SNTP hostname to sync with"
+    default "pool.ntp.org"
+    help
+        SNTP server to sync time with.
+
 config DEEP_SLEEP_TIME_SEC
     int "Second to sleep"
     default 30
