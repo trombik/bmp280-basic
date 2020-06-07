@@ -13,7 +13,6 @@
 #include <esp_event.h>
 #include <esp_err.h>
 #include <esp_log.h>
-#include <mqtt_client.h>
 #include <esp_event_loop.h>
 
 #include "wifi_connect.h"
