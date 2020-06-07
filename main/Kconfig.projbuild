@@ -1,5 +1,10 @@
 menu "Project configuration"
 
+config PROJECT_WIFI_ENABLE
+    bool "Enable WiFi"
+    help
+        Enable WiFi
+
 config PROJECT_WIFI_SSID
     string "SSID"
     default ""
@@ -7,6 +12,11 @@ config PROJECT_WIFI_SSID
 config PROJECT_WIFI_PASSWORD
     string "Password"
     default ""
+
+config PROJECT_SNTP_ENABLE
+    bool "Enable SNTP sync"
+    help
+        Enable SNTP sync on boot
 
 config PROJECT_SNTP_HOST
     string "SNTP hostname to sync with"

@@ -28,8 +28,13 @@
 #include <esp_log.h>
 #include <time.h>
 
+#if defined(CONFIG_PROJECT_SNTP_ENABLE)
 #include "sntp_connect.h"
+#endif
+
+#if defined(CONFIG_PROJECT_WIFI_ENABLE)
 #include "wifi_connect.h"
+#endif
 
 #if defined(CONFIG_IDF_TARGET_ESP8266)
 #define SDA_GPIO 4
@@ -39,13 +44,18 @@
 #define SCL_GPIO 17
 #endif
 
+#if defined(CONFIG_PROJECT_WIFI_ENABLE)
+#define WIFI_CONNECTED_WAIT_TICK (1000 / portTICK_PERIOD_MS)
+#endif
+
 #define TAG "APP_MAIN"
 #define NOT_WAIT_FOR_ALL_BITS pdFALSE
 #define NOT_CLEAR_ON_EXIT pdFALSE
-#define WIFI_CONNECTED_WAIT_TICK (1000 / portTICK_PERIOD_MS)
 
+#if defined(CONFIG_PROJECT_WIFI_ENABLE)
 EventGroupHandle_t s_wifi_event_group;
 int WIFI_CONNECTED_BIT = BIT0;
+#endif
 
 void bmp280_test(void *pvParamters)
 {
@@ -88,12 +98,14 @@ uint32_t sec_to_usec(int sec)
 
 void app_main()
 {
-    int sleep_sec = 30;
     int64_t uptime_in_msec;
+    esp_err_t err;
+
+#if defined(CONFIG_PROJECT_SNTP_ENABLE)
     time_t now;
     struct tm timeinfo;
     char time_string[64];
-    esp_err_t err;
+#endif
 
     ESP_LOGI(TAG, "Initializing NVS");
     err = nvs_flash_init();
@@ -114,6 +126,7 @@ void app_main()
     }
     ESP_ERROR_CHECK(err);
 
+#if defined(CONFIG_PROJECT_WIFI_ENABLE)
     ESP_LOGI(TAG, "Configuring WiFi");
     ESP_ERROR_CHECK(init_wifi());
     ESP_LOGI(TAG, "Configured WiFi. Waiting for WIFI_CONNECTED_BIT...");
@@ -126,7 +139,10 @@ void app_main()
             break;
         }
     }
+    ESP_LOGI(TAG, "Connected to WiFi");
+#endif
 
+#if defined(CONFIG_PROJECT_SNTP_ENABLE)
     ESP_LOGI(TAG, "Configuring time");
     if (time(&now) == -1) {
         ESP_LOGI(TAG, "time()");
@@ -142,8 +158,11 @@ void app_main()
         }
     }
     ESP_LOGI(TAG, "Configured time");
-
-    ESP_ERROR_CHECK(i2cdev_init());
+#endif
+    if ((err = i2cdev_init()) != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to i2cdev_init(): 0x%x", err);
+        goto fail;
+    }
     bmp280_test(NULL);
     uptime_in_msec = esp_timer_get_time() / 1000ULL;
     printf("Uptime %lld sec\n", uptime_in_msec / 1000);
