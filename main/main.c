@@ -5,6 +5,7 @@
 #include <bmp280.h>
 #include <string.h>
 #include <esp_sleep.h>
+#include <esp_timer.h>
 
 #if defined(CONFIG_IDF_TARGET_ESP8266)
 #define SDA_GPIO 4
@@ -56,9 +57,12 @@ uint32_t sec_to_usec(int sec)
 void app_main()
 {
     int sleep_sec = 30;
+    int64_t uptime_in_msec;
 
     ESP_ERROR_CHECK(i2cdev_init());
     bmp280_test(NULL);
+    uptime_in_msec = esp_timer_get_time() / 1000ULL;
+    printf("Uptime %lld sec\n", uptime_in_msec / 1000);
     printf("Sleeping %d sec\n", sleep_sec);
 
     /* wait a bit for the message above to be printed */
