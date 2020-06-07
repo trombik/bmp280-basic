@@ -1,11 +1,17 @@
 #include <stdio.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#include <freertos/event_groups.h>
 #include <esp_system.h>
 #include <bmp280.h>
 #include <string.h>
 #include <esp_sleep.h>
 #include <esp_timer.h>
+#include <nvs_flash.h>
+#include <esp_err.h>
+#include <esp_log.h>
+
+#include "wifi_connect.h"
 
 #if defined(CONFIG_IDF_TARGET_ESP8266)
 #define SDA_GPIO 4
@@ -14,6 +20,14 @@
 #define SDA_GPIO 16
 #define SCL_GPIO 17
 #endif
+
+#define TAG "APP_MAIN"
+#define NOT_WAIT_FOR_ALL_BITS pdFALSE
+#define NOT_CLEAR_ON_EXIT pdFALSE
+#define WIFI_CONNECTED_WAIT_TICK (1000 / portTICK_PERIOD_MS)
+
+EventGroupHandle_t s_wifi_event_group;
+int WIFI_CONNECTED_BIT = BIT0;
 
 void bmp280_test(void *pvParamters)
 {
@@ -58,6 +72,39 @@ void app_main()
 {
     int sleep_sec = 30;
     int64_t uptime_in_msec;
+    esp_err_t err;
+
+    ESP_LOGI(TAG, "Initializing NVS");
+    err = nvs_flash_init();
+#if defined(CONFIG_IDF_TARGET_ESP32)
+    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+#elif defined(CONFIG_IDF_TARGET_ESP8266)
+    if (err == ESP_ERR_NVS_NO_FREE_PAGES) {
+#endif // defined(CONFIG_IDF_TARGET_ESP32)
+
+        /* OTA app partition table has a smaller NVS partition size than the
+         * non-OTA partition table. This size mismatch may cause NVS
+         * initialization to fail.  If this happens, we erase NVS partition
+         * and initialize NVS again.
+         */
+        ESP_LOGI(TAG, "Re-Initializing NVS");
+        ESP_ERROR_CHECK(nvs_flash_erase());
+        err = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK(err);
+
+    ESP_LOGI(TAG, "Configuring WiFi");
+    ESP_ERROR_CHECK(init_wifi());
+    ESP_LOGI(TAG, "Configured WiFi. Waiting for WIFI_CONNECTED_BIT...");
+    while (1) {
+        if (xEventGroupWaitBits(s_wifi_event_group,
+                                WIFI_CONNECTED_BIT,
+                                NOT_WAIT_FOR_ALL_BITS,
+                                NOT_CLEAR_ON_EXIT,
+                                WIFI_CONNECTED_WAIT_TICK)) {
+            break;
+        }
+    }
 
     ESP_ERROR_CHECK(i2cdev_init());
     bmp280_test(NULL);

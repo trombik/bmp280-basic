@@ -1,5 +1,13 @@
 menu "Project configuration"
 
+config PROJECT_WIFI_SSID
+    string "SSID"
+    default ""
+
+config PROJECT_WIFI_PASSWORD
+    string "Password"
+    default ""
+
 config DEEP_SLEEP_TIME_SEC
     int "Second to sleep"
     default 30
