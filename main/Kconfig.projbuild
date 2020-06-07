@@ -8,19 +8,23 @@ config PROJECT_WIFI_ENABLE
 config PROJECT_WIFI_SSID
     string "SSID"
     default ""
+    depends on PROJECT_WIFI_ENABLE
 
 config PROJECT_WIFI_PASSWORD
     string "Password"
     default ""
+    depends on PROJECT_WIFI_ENABLE
 
 config PROJECT_SNTP_ENABLE
     bool "Enable SNTP sync"
+    depends on PROJECT_WIFI_ENABLE
     help
         Enable SNTP sync on boot
 
 config PROJECT_SNTP_HOST
     string "SNTP hostname to sync with"
     default "pool.ntp.org"
+    depends on PROJECT_SNTP_ENABLE
     help
         SNTP server to sync time with.
 
